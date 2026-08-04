@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: bot-whatsapp-ia
+    env: node
+    plan: free
+    region: oregon
+
+    buildCommand: |
+      npm install
+
+    startCommand: npm start
+
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 3000

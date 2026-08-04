@@ -1,0 +1,29 @@
+{
+  "name": "bot-whatsapp-ia",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp com Baileys, MongoDB e OpenAI pronto para Render.",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx -y -p node@20 node index.js",
+    "dev": "npx -y -p node@20 node index.js"
+  },
+  "keywords": ["whatsapp", "baileys", "openai", "mongodb", "render"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20 <21"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.24",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongodb": "^7.3.0",
+    "openai": "^6.37.0",
+    "pdfkit": "^0.18.0",
+    "pino": "^10.3.1",
+    "qrcode": "^1.5.1",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
