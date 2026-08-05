@@ -48,7 +48,7 @@ const openai = new OpenAI({
    PROMPT SISTEMA
 ====================================================== */
 const PROMPT_SISTEMA = `
-Você é um vendedor profissional de uma loja especializada em sofás sob medida. Seu objetivo é oferecer um atendimento de excelência, entender a necessidade do cliente, apresentar as melhores opções e conduzir a conversa até a venda de forma natural.
+Você é um vendedor profissional de uma loja especializada em estofados sob medida (sofás, poltronas e afins) e colchões. Seu objetivo é oferecer um atendimento de excelência, entender a necessidade do cliente, apresentar as melhores opções e conduzir a conversa até a venda de forma natural.
 
 IMPORTANTE:
 - Nunca diga que você é uma inteligência artificial, robô ou assistente virtual.
@@ -73,10 +73,10 @@ Segunda-feira a sábado
 Das 08:00 às 17:00.
 
 ========================
-SOBRE OS SOFÁS
+SOBRE OS ESTOFADOS SOB MEDIDA
 ========================
 
-Todos os sofás são fabricados sob medida.
+Todos os estofados (sofás, poltronas e afins) são fabricados sob medida.
 
 Valor:
 R$ 1.100,00 por metro.
@@ -96,6 +96,18 @@ Exemplos:
 3,00 m = R$ 3.300,00
 
 ========================
+SOBRE OS COLCHÕES
+========================
+
+A loja também trabalha com colchões.
+
+Quando o cliente perguntar sobre colchões, atenda normalmente e apresente os modelos disponíveis, ajudando-o a entender qual se encaixa melhor na necessidade dele (tamanho, tipo de conforto, uso etc.).
+
+Nunca invente preços de colchões.
+
+Se o preço ou alguma informação específica de um colchão não estiver disponível, informe educadamente que um vendedor da loja fornecerá esse detalhe.
+
+========================
 ATENDIMENTO
 ========================
 
@@ -104,13 +116,13 @@ Ao iniciar uma conversa seja cordial.
 Exemplo:
 
 "Olá! Seja muito bem-vindo(a)! 😊
-Será um prazer ajudar você a encontrar o sofá ideal.
+Será um prazer ajudar você a encontrar o estofado ou colchão ideal.
 
-Posso mostrar nossos modelos, calcular o valor conforme a medida desejada e esclarecer qualquer dúvida."
+Posso mostrar nossos modelos, calcular o valor conforme a medida desejada (no caso dos estofados) e esclarecer qualquer dúvida."
 
 Primeiro descubra a necessidade do cliente.
 
-Faça perguntas como:
+Se o interesse for em estofado, faça perguntas como:
 
 • Qual modelo você procura?
 
@@ -118,7 +130,15 @@ Faça perguntas como:
 
 • Qual cor prefere?
 
-• O sofá será para casa, apartamento ou outro ambiente?
+• O estofado será para casa, apartamento ou outro ambiente?
+
+Se o interesse for em colchão, faça perguntas como:
+
+• Qual tamanho de colchão você precisa (solteiro, casal, queen, king)?
+
+• Você prefere um colchão mais firme ou mais macio?
+
+• É para uso próprio ou para outra pessoa da casa?
 
 Nunca responda apenas o preço.
 
@@ -147,7 +167,7 @@ Depois pergunte:
 
 "Qual a medida desejada?"
 
-Em seguida calcule automaticamente o valor.
+Em seguida calcule automaticamente o valor (para estofados).
 
 ========================
 OBJETIVO
@@ -182,7 +202,7 @@ COMPORTAMENTO
 
 Se o cliente enviar áudio, responda normalmente.
 
-Se enviar imagem relacionada a sofá, analise e responda de forma útil.
+Se enviar imagem relacionada a estofado ou colchão, analise e responda de forma útil.
 
 Se perguntarem sobre pagamento ou qualquer informação que não foi fornecida, informe educadamente que um vendedor confirmará todos os detalhes.
 
@@ -204,6 +224,12 @@ let connectionState = "starting";
 let authResetInProgress = false;
 let pairingFlowActive = false;
 const conversas = {};
+// Guarda o horário (timestamp) da última mensagem de cada conversa, para
+// saber se a conversa ainda está "ativa" ou se já passou muito tempo
+// (nesse caso o histórico é reiniciado e a saudação inicial volta a valer).
+const ultimaInteracaoConversa = {};
+// Tempo sem mensagens, em ms, após o qual a conversa é considerada nova.
+const LIMITE_INATIVIDADE_MS = 6 * 60 * 60 * 1000; // 6 horas
 const atendimentosHumanos = new Set();
 const idsMensagensDoBot = new Set();
 let authCollection = null;
@@ -247,6 +273,18 @@ const VOZ_AUDIO =
 
 function obterIdsDaConversa(message) {
   return [message.key.remoteJid, message.key.remoteJidAlt].filter(Boolean);
+}
+
+// O WhatsApp pode identificar o mesmo contato com IDs diferentes
+// (remoteJid "clássico" e remoteJid alternativo/LID) entre uma mensagem e
+// outra. Se o histórico fosse guardado sempre pelo remoteJid da mensagem
+// atual, o mesmo cliente podia "perder" a conversa e o bot voltava a
+// tratá-lo como se fosse a primeira vez. Esta função reutiliza a chave já
+// existente (se algum dos IDs já tiver histórico) para manter o contexto.
+function obterNumeroConversa(message) {
+  const ids = obterIdsDaConversa(message);
+  const idComHistorico = ids.find((id) => conversas[id]);
+  return idComHistorico || ids[0];
 }
 
 // Marca un mensaje enviado por el propio bot para no confundirlo
@@ -1022,6 +1060,18 @@ async function inicializarSocket() {
         // Mensagens próprias já foram registradas no modo humano acima.
         if (message.key.fromMe) return;
 
+        // Chave estável do histórico dessa conversa (ver obterNumeroConversa).
+        const numeroConversa = obterNumeroConversa(message);
+
+        // Se a conversa ficou inativa por muito tempo, reinicia o histórico
+        // para que o atendimento comece novamente com a saudação inicial.
+        const agora = Date.now();
+        const ultimaInteracao = ultimaInteracaoConversa[numeroConversa];
+        if (!ultimaInteracao || agora - ultimaInteracao > LIMITE_INATIVIDADE_MS) {
+          conversas[numeroConversa] = [];
+        }
+        ultimaInteracaoConversa[numeroConversa] = agora;
+
         // Não responder enquanto o atendimento estiver sendo feito por uma pessoa.
         if (obterIdsDaConversa(message).some((id) => atendimentosHumanos.has(id))) return;
 
@@ -1120,12 +1170,12 @@ async function inicializarSocket() {
             const respostaPreco = calcularPrecoSofa(medidaInformada);
 
             // Registra a interação no histórico para manter a memória da conversa.
-            if (!conversas[numero]) {
-              conversas[numero] = [];
+            if (!conversas[numeroConversa]) {
+              conversas[numeroConversa] = [];
             }
-            conversas[numero].push({ role: "user", content: textoUsuario });
-            conversas[numero].push({ role: "assistant", content: respostaPreco });
-            conversas[numero] = conversas[numero].slice(-15);
+            conversas[numeroConversa].push({ role: "user", content: textoUsuario });
+            conversas[numeroConversa].push({ role: "assistant", content: respostaPreco });
+            conversas[numeroConversa] = conversas[numeroConversa].slice(-15);
 
             await enviarResposta(numero, respostaPreco, recebeuAudio);
             return;
@@ -1143,17 +1193,17 @@ async function inicializarSocket() {
            HISTÓRICO
         ====================================================== */
 
-        if (!conversas[numero]) {
-          conversas[numero] = [];
+        if (!conversas[numeroConversa]) {
+          conversas[numeroConversa] = [];
         }
 
-        conversas[numero].push({
+        conversas[numeroConversa].push({
           role: "user",
           content: textoUsuario,
         });
 
         // Limitar memória
-        conversas[numero] = conversas[numero].slice(-15);
+        conversas[numeroConversa] = conversas[numeroConversa].slice(-15);
 
         /* ======================================================
            OPENAI
@@ -1167,7 +1217,7 @@ async function inicializarSocket() {
               role: "system",
               content: PROMPT_SISTEMA,
             },
-            ...conversas[numero],
+            ...conversas[numeroConversa],
           ],
         });
 
@@ -1180,7 +1230,7 @@ async function inicializarSocket() {
            SALVAR RESPOSTA
         ====================================================== */
 
-        conversas[numero].push({
+        conversas[numeroConversa].push({
           role: "assistant",
           content: resposta,
         });
@@ -1196,7 +1246,7 @@ async function inicializarSocket() {
         ====================================================== */
 
         if (ehConfirmacaoProposta(resposta)) {
-          await enviarPDFProposta(numero, conversas[numero], resposta);
+          await enviarPDFProposta(numero, conversas[numeroConversa], resposta);
         }
 
       } catch (erro) {
