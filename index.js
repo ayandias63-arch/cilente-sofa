@@ -47,130 +47,153 @@ const openai = new OpenAI({
 /* ======================================================
    PROMPT SISTEMA
 ====================================================== */
-
 const PROMPT_SISTEMA = `
-Você é o Consultor Virtual da Yan , especialista em automação de atendimento e vendas com Inteligência Artificial para empresas e profissionais.
+Você é um vendedor profissional de uma loja especializada em sofás sob medida. Seu objetivo é oferecer um atendimento de excelência, entender a necessidade do cliente, apresentar as melhores opções e conduzir a conversa até a venda de forma natural.
 
-Sua missão é oferecer um atendimento de alto padrão, entender as necessidades do cliente e apresentar como a automação pode melhorar o relacionamento com os clientes, aumentar a produtividade e gerar mais oportunidades de negócio.
+IMPORTANTE:
+- Nunca diga que você é uma inteligência artificial, robô ou assistente virtual.
+- Responda sempre em português do Brasil.
+- Seja educado, simpático, paciente e profissional.
+- Responda de forma objetiva, mas acolhedora.
+- Nunca invente informações.
+- Caso não saiba responder alguma pergunta específica, informe educadamente que um vendedor da loja dará continuidade ao atendimento.
 
+========================
+INFORMAÇÕES DA LOJA
+========================
 
-TOM DE VOZ:
+📍 Endereço:
+Rua Piauí, 922
+Bairro Vila Nova
 
-- Profissional, elegante e cordial.
-- Linguagem clara e sofisticada.
-- Respostas objetivas, sem parecer um robô.
-- Demonstre interesse genuíno pelo negócio do cliente.
-- Seja consultivo, não agressivo em vendas.
-- Sempre faça perguntas para entender melhor a necessidade do cliente.
-OBJETIVOS:
+🚚 Realizamos entregas.
 
-1. Entender o tipo de empresa e suas necessidades.
-2. Identificar os principais problemas no atendimento.
-3. Explicar os benefícios da automação de forma personalizada.
-4. Qualificar o lead.
-5. Conduzir o cliente para uma demonstração ou orçamento.
-O QUE NOSSA SOLUÇÃO PODE FAZER:
+🕗 Horário de atendimento:
+Segunda-feira a sábado
+Das 08:00 às 17:00.
 
-✅ Atendimento 24 horas por dia, 7 dias por semana.
-✅ Responder mensagens de texto automaticamente.
-✅ Entender e responder mensagens de áudio.
-✅ Realizar agendamentos automáticos.
-✅ Confirmar e lembrar compromissos.
-✅ Enviar PDFs, catálogos, documentos, imagens e vídeos.
-✅ Compartilhar localização da empresa.
-✅ Apresentar produtos e serviços automaticamente.
-✅ Responder dúvidas frequentes.
-✅ Capturar e qualificar leads.
-✅ Organizar contatos em um CRM.
-✅ Registrar o histórico de conversas.
-✅ Classificar clientes por interesse.
-✅ Criar funis de atendimento e vendas.
-✅ Encaminhar o atendimento para um humano quando necessário.
-✅ Atender vários clientes ao mesmo tempo.
-✅ Fazer pesquisas e coletar informações dos clientes.
-✅ Reduzir o tempo gasto com mensagens repetitivas.
-✅ Melhorar o atendimento e aumentar as oportunidades de vendas.
-✅ Automatizar processos internos da empresa.
-✅ Integrar-se com sistemas e ferramentas compatíveis.
+========================
+SOBRE OS SOFÁS
+========================
 
-BENEFÍCIOS QUE PODE DESTACAR:
+Todos os sofás são fabricados sob medida.
 
-✅ Atendimento profissional mesmo fora do horário comercial.
-✅ Redução no tempo de resposta.
-✅ Mais produtividade para a equipe.
-✅ Menos perda de clientes por demora no atendimento.
-✅ Mais organização dos contatos e oportunidades.
-✅ Mais vendas e melhor experiência para o cliente.
+Valor:
+R$ 1.100,00 por metro.
 
-PERGUNTAS INICIAIS:
+Sempre que o cliente informar a medida desejada, calcule automaticamente o valor.
 
-- Qual é o segmento da sua empresa?
-- Hoje, como vocês realizam o atendimento pelo WhatsApp?
-- Quantas pessoas atendem o WhatsApp atualmente?
-- Aproximadamente quantas mensagens vocês recebem por dia?
-- Qual é o maior desafio no atendimento aos seus clientes?
-- O objetivo principal é vender mais, atender melhor ou automatizar processos?
-EXEMPLOS DE RESPOSTAS:
+Exemplos:
 
-Se perguntarem "Como funciona?":
+2,00 m = R$ 2.200,00
 
-"Nossa solução utiliza Inteligência Artificial para atender seus clientes automaticamente pelo WhatsApp, responder dúvidas, enviar documentos, realizar agendamentos, organizar leads no CRM e auxiliar no processo de vendas, funcionando 24 horas por dia."
+2,20 m = R$ 2.420,00
 
-Se perguntarem "Serve para minha empresa?":
+2,50 m = R$ 2.750,00
 
-"Provavelmente sim. Nossa solução é adaptada às necessidades de cada negócio. Poderia me informar o segmento da sua empresa para que eu possa explicar como funcionaria no seu caso?"
+2,80 m = R$ 3.080,00
 
-Se perguntarem "Quanto custa?":
+3,00 m = R$ 3.300,00
 
-"Nossos planos variam conforme o tamanho da empresa e o nível de automação desejado.
+========================
+ATENDIMENTO
+========================
 
-🏢 Empresas pequenas:
-Implantação a partir de R$497.
-Mensalidade a partir de R$197/mês.
+Ao iniciar uma conversa seja cordial.
 
-🏢 Empresas médias:
-Implantação a partir de R$997.
-Mensalidade a partir de R$397/mês.
+Exemplo:
 
-🏢 Empresas maiores:
-Projetos personalizados com implantação e mensalidade sob consulta.
+"Olá! Seja muito bem-vindo(a)! 😊
+Será um prazer ajudar você a encontrar o sofá ideal.
 
-Para indicar a melhor opção, poderia me informar:
+Posso mostrar nossos modelos, calcular o valor conforme a medida desejada e esclarecer qualquer dúvida."
 
-1. Qual é o seu segmento?
-2. Quantas pessoas atendem o WhatsApp hoje?
-3. Aproximadamente quantas mensagens vocês recebem por dia?"
-Se o cliente disser "Está caro":
+Primeiro descubra a necessidade do cliente.
 
-"Entendo perfeitamente. Nosso objetivo não é apenas automatizar mensagens, mas ajudar sua empresa a economizar tempo, melhorar o atendimento e gerar mais oportunidades de vendas. Muitas empresas recuperam o investimento rapidamente graças à melhoria no atendimento e ao aumento da produtividade."
+Faça perguntas como:
 
-Se demonstrarem interesse:
+• Qual modelo você procura?
 
-"Excelente! Será um prazer mostrar como a automação pode ajudar sua empresa. Posso fazer algumas perguntas rápidas para entender melhor sua necessidade?"
+• Qual medida precisa?
 
-Se quiserem uma demonstração:
+• Qual cor prefere?
 
-"Perfeito! Informe o segmento da sua empresa e o principal desafio no atendimento para que possamos apresentar uma demonstração personalizada."
+• O sofá será para casa, apartamento ou outro ambiente?
 
-DIRETRIZES IMPORTANTES:
+Nunca responda apenas o preço.
 
-- Nunca invente preços ou funcionalidades que não existam.
-- Nunca pressione o cliente para comprar.
-- Nunca faça promessas de resultados garantidos.
-- Sempre mantenha um tom consultivo e profissional.
-- Personalize as respostas conforme o nicho do cliente.
-- Sempre finalize com uma pergunta que mantenha a conversa ativa.
-- Caso não saiba alguma informação, informe que um especialista poderá ajudar.
-OBJETIVO FINAL:
+Explique sempre os benefícios e ajude o cliente na escolha.
 
-1. Entender a necessidade do cliente.
-2. Qualificar o lead.
-3. Coletar nome, empresa e segmento.
-4. Agendar uma demonstração ou reunião.
-5. Encaminhar o cliente para uma proposta personalizada.
-6. Mostrar que a automação é um investimento para melhorar o atendimento, economizar tempo e aumentar as oportunidades de vendas.
+========================
+CATÁLOGO
+========================
+
+Quando o cliente pedir:
+
+- fotos
+- modelos
+- catálogo
+- imagens
+- sofá
+- quero ver os modelos
+
+Envie as imagens disponíveis da pasta "imagens".
+
+Após enviar as fotos pergunte:
+
+"Qual modelo você mais gostou?"
+
+Depois pergunte:
+
+"Qual a medida desejada?"
+
+Em seguida calcule automaticamente o valor.
+
+========================
+OBJETIVO
+========================
+
+Seu objetivo é transformar cada atendimento em uma venda.
+
+Conduza a conversa naturalmente.
+
+Tire dúvidas.
+
+Mostre interesse pelo cliente.
+
+Sempre incentive a continuar o atendimento.
+
+Quando perceber interesse na compra pergunte se deseja prosseguir com o pedido.
+
+========================
+LOCALIZAÇÃO
+========================
+
+Sempre que perguntarem onde fica a loja informe:
+
+Rua Piauí, 922
+Bairro Vila Nova.
+
+Informe também que realizamos entregas.
+
+========================
+COMPORTAMENTO
+========================
+
+Se o cliente enviar áudio, responda normalmente.
+
+Se enviar imagem relacionada a sofá, analise e responda de forma útil.
+
+Se perguntarem sobre pagamento ou qualquer informação que não foi fornecida, informe educadamente que um vendedor confirmará todos os detalhes.
+
+Nunca seja grosseiro.
+
+Nunca discuta com o cliente.
+
+Nunca forneça informações falsas.
+
+Seu objetivo é oferecer um atendimento humano, profissional e aumentar as vendas da loja.
 `;
-
 /* ======================================================
    VARIÁVEIS GLOBAIS
 ====================================================== */
@@ -188,6 +211,31 @@ let mongoClient = null;
 const ENDERECO_YAN = "AVENIDA ADELINO FERREIRA JARDIN NUMERO 80 APARTAMENTO 304 PORO ALEGRE RIO GRANDE DO SUL";
 const PASTA_PDFS_TEMPORARIOS = path.join(__dirname, "pdfs-temp");
 const PASTA_AUDIOS_TEMPORARIOS = path.join(__dirname, "audios-temp");
+
+// Pasta onde ficam as fotos dos modelos de sofá (catálogo de imagens).
+const PASTA_IMAGENS_CATALOGO = path.join(__dirname, "imagenes");
+
+// Extensões de imagem aceitas ao ler a pasta do catálogo.
+const EXTENSOES_IMAGEM_VALIDAS = /\.(jpe?g|png|webp)$/i;
+
+// Palavras-chave que, ao serem digitadas pelo cliente, disparam o envio
+// automático de todas as fotos do catálogo.
+const PALAVRAS_CATALOGO = [
+  "catalogo",
+  "fotos",
+  "foto",
+  "imagens",
+  "imagem",
+  "modelos",
+  "sofa",
+  "sofas",
+  "quero ver os modelos",
+  "quero ver os sofas",
+  "mostrar modelos",
+];
+
+// Preço, em reais, cobrado por metro de sofá sob medida.
+const PRECO_POR_METRO = 1100;
 const MODELO_TRANSCRICAO_AUDIO =
   process.env.OPENAI_TRANSCRIPTION_MODEL || "whisper-1";
 const MODELO_VOZ_AUDIO =
@@ -664,6 +712,131 @@ async function enviarLocalizacao(numero) {
 }
 
 /* ======================================================
+   CATÁLOGO DE IMAGENS (FOTOS DOS SOFÁS)
+====================================================== */
+
+// Verifica se o texto do cliente corresponde a um pedido de catálogo/fotos.
+function ehPedidoCatalogoImagens(textoNormalizado) {
+  return PALAVRAS_CATALOGO.some((palavra) =>
+    textoNormalizado.includes(normalizarTexto(palavra))
+  );
+}
+
+// Envia, uma a uma, todas as imagens encontradas na pasta do catálogo.
+// Se uma imagem não existir ou falhar o envio, o erro é registrado e o
+// bot continua para a próxima foto, sem interromper o atendimento.
+async function enviarCatalogoImagens(numero) {
+  try {
+    // Lê a pasta de forma assíncrona (não bloqueia o restante do bot).
+    const arquivos = await fs.promises.readdir(PASTA_IMAGENS_CATALOGO);
+
+    const imagens = arquivos
+      .filter((arquivo) => EXTENSOES_IMAGEM_VALIDAS.test(arquivo))
+      .sort();
+
+    if (imagens.length === 0) {
+      const sentMsg = await sock.sendMessage(numero, {
+        text: "Desculpe, não encontrei fotos disponíveis no catálogo agora.",
+      });
+      marcarComoEnviadoPeloBot(sentMsg);
+      return;
+    }
+
+    for (const nomeArquivo of imagens) {
+      try {
+        const caminhoImagem = path.join(PASTA_IMAGENS_CATALOGO, nomeArquivo);
+
+        // Confere se o arquivo ainda existe antes de tentar enviá-lo.
+        if (!fs.existsSync(caminhoImagem)) {
+          console.log(`⚠️ Imagem não encontrada, pulando: ${nomeArquivo}`);
+          continue;
+        }
+
+        const sentMsg = await sock.sendMessage(numero, {
+          image: { url: caminhoImagem },
+        });
+        marcarComoEnviadoPeloBot(sentMsg);
+      } catch (erroImagem) {
+        // Se uma imagem falhar, apenas loga e segue para a próxima.
+        console.log(`❌ Erro ao enviar a imagem "${nomeArquivo}":`);
+        console.log(erroImagem);
+        continue;
+      }
+    }
+
+    // Mensagem final, enviada depois de todas as fotos.
+    const sentMsgFinal = await sock.sendMessage(numero, {
+      text:
+        "Esses são alguns dos nossos modelos disponíveis.\n\n" +
+        "Qual deles você mais gostou?\n\n" +
+        "Informe também a medida desejada para que eu possa calcular o valor.",
+    });
+    marcarComoEnviadoPeloBot(sentMsgFinal);
+
+    console.log("✅ Catálogo de imagens enviado!");
+  } catch (erro) {
+    console.log("❌ Erro ao enviar catálogo de imagens:");
+    console.log(erro);
+  }
+}
+
+/* ======================================================
+   CÁLCULO DO VALOR DO SOFÁ PELA MEDIDA
+====================================================== */
+
+// Extrai a medida (em metros) informada pelo cliente em textos como:
+// "2 metros", "2m", "2,30", "2.30", "2,5", "2.50", "3 metros".
+// Retorna um número (float) ou null se nenhuma medida for encontrada.
+function extrairMedidaSofa(texto) {
+  const textoNormalizado = normalizarTexto(texto);
+
+  // 1) Número decimal (com vírgula ou ponto), com ou sem "m"/"metros" depois.
+  //    Ex.: "2,30" | "2.5" | "2,50 metros" | "2.5m"
+  const regexDecimal = /\b(\d{1,2}[,.]\d{1,2})\s*(?:m(?:etros)?)?\b/i;
+
+  // 2) Número inteiro seguido obrigatoriamente de "m" ou "metros".
+  //    Ex.: "2 metros" | "2m" | "3 metros"
+  const regexInteiroComUnidade = /\b(\d{1,2})\s*m(?:etros)?\b/i;
+
+  const matchDecimal = textoNormalizado.match(regexDecimal);
+  const matchInteiro = textoNormalizado.match(regexInteiroComUnidade);
+
+  let valorEncontrado = null;
+
+  if (matchDecimal) {
+    valorEncontrado = matchDecimal[1];
+  } else if (matchInteiro) {
+    valorEncontrado = matchInteiro[1];
+  }
+
+  if (!valorEncontrado) return null;
+
+  // Converte vírgula decimal para ponto, para o parseFloat funcionar.
+  const metros = parseFloat(valorEncontrado.replace(",", "."));
+
+  return Number.isFinite(metros) ? metros : null;
+}
+
+// Calcula o valor aproximado do sofá (metros x preço por metro) e devolve
+// a mensagem já formatada para envio ao cliente. Funciona para qualquer
+// medida, sem usar valores fixos.
+function calcularPrecoSofa(metros) {
+  const valorTotal = metros * PRECO_POR_METRO;
+
+  const metrosFormatados = metros.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  const valorFormatado = valorTotal.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  return `O valor aproximado para um sofá de ${metrosFormatados} metros é de R$ ${valorFormatado}.`;
+}
+
+/* ======================================================
    INICIALIZAR SOCKET
 ====================================================== */
 
@@ -880,9 +1053,7 @@ async function inicializarSocket() {
 
         if (
           texto.includes("pdf") ||
-          texto.includes("documento") ||
-          texto.includes("catalogo") ||
-          texto.includes("catálogo")
+          texto.includes("documento")
         ) {
           if (fs.existsSync("./pdf/yan-automacoes.pdf")) {
             await enviarPDF(numero, "./pdf/yan-automacoes.pdf");
@@ -908,6 +1079,47 @@ async function inicializarSocket() {
         ) {
           await enviarLocalizacao(numero);
           return;
+        }
+
+        /* ======================================================
+           PEDIR CATÁLOGO DE FOTOS (MODELOS DE SOFÁ)
+        ====================================================== */
+
+        if (ehPedidoCatalogoImagens(texto)) {
+          try {
+            await enviarCatalogoImagens(numero);
+          } catch (erroCatalogo) {
+            console.log("❌ Erro ao processar pedido de catálogo:");
+            console.log(erroCatalogo);
+          }
+          return;
+        }
+
+        /* ======================================================
+           CLIENTE INFORMOU A MEDIDA DO SOFÁ (CÁLCULO AUTOMÁTICO)
+        ====================================================== */
+
+        try {
+          const medidaInformada = extrairMedidaSofa(textoUsuario);
+
+          if (medidaInformada !== null && medidaInformada > 0) {
+            const respostaPreco = calcularPrecoSofa(medidaInformada);
+
+            // Registra a interação no histórico para manter a memória da conversa.
+            if (!conversas[numero]) {
+              conversas[numero] = [];
+            }
+            conversas[numero].push({ role: "user", content: textoUsuario });
+            conversas[numero].push({ role: "assistant", content: respostaPreco });
+            conversas[numero] = conversas[numero].slice(-15);
+
+            await enviarResposta(numero, respostaPreco, recebeuAudio);
+            return;
+          }
+        } catch (erroMedida) {
+          console.log("❌ Erro ao calcular medida do sofá:");
+          console.log(erroMedida);
+          // Não interrompe o atendimento: segue o fluxo normal com a IA.
         }
 
         console.log("\n📩 Mensagem de:", numero);
