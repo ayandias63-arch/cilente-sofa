@@ -688,10 +688,12 @@ async function enviarPDFProposta(numero, historico, resposta) {
 
 async function enviarLocalizacao(numero) {
   try {
+    // Coordenadas aproximadas do bairro Vila Nova, Porto Alegre - RS
+    // (não é o número exato "922", ajustar se tiver a localização precisa).
     const sentMsg1 = await sock.sendMessage(numero, {
       location: {
-        degreesLatitude: -30.0326,
-        degreesLongitude: -51.2104,
+        degreesLatitude: -30.1160030,
+        degreesLongitude: -51.2075170,
       },
     });
     marcarComoEnviadoPeloBot(sentMsg1);
