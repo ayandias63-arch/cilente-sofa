@@ -209,6 +209,8 @@ const idsMensagensDoBot = new Set();
 let authCollection = null;
 let mongoClient = null;
 const ENDERECO_YAN = "AVENIDA ADELINO FERREIRA JARDIN NUMERO 80 APARTAMENTO 304 PORO ALEGRE RIO GRANDE DO SUL";
+// Endereço real da loja de sofás, usado quando o cliente pede localização/endereço.
+const ENDERECO_LOJA = "Rua Piauí, 922 - Bairro Vila Nova";
 const PASTA_PDFS_TEMPORARIOS = path.join(__dirname, "pdfs-temp");
 const PASTA_AUDIOS_TEMPORARIOS = path.join(__dirname, "audios-temp");
 
@@ -694,11 +696,11 @@ async function enviarLocalizacao(numero) {
     });
     marcarComoEnviadoPeloBot(sentMsg1);
 
-    // Também enviar mensagem com o endereço
+    // Também enviar mensagem com o endereço da loja
     const sentMsg2 = await sock.sendMessage(
       numero,
       {
-        text: "🤖 Yan Automações\n" + ENDERECO_YAN,
+        text: "📍 " + ENDERECO_LOJA,
       }
     );
     marcarComoEnviadoPeloBot(sentMsg2);
