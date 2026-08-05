@@ -979,6 +979,16 @@ async function inicializarSocket() {
             textoManual = mensagemManual.message.extendedTextMessage.text;
           }
 
+          // Ignorar eventos "fromMe" que não são texto real digitado pelo
+          // usuário (reações, revogações, sincronizações, mídia sem legenda,
+          // etc.), pois eles não representam uma intervenção humana.
+          if (
+            !mensagemManual.message.conversation &&
+            !mensagemManual.message.extendedTextMessage
+          ) {
+            continue;
+          }
+
           if (normalizarTexto(textoManual) === "#bot") {
             obterIdsDaConversa(mensagemManual).forEach((id) =>
               atendimentosHumanos.delete(id)
