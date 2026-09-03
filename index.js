@@ -1109,14 +1109,40 @@ async function inicializarSocket() {
           }
         }
 
-        const message = m.messages[0];
+        console.log("[messages.upsert] total de mensagens:", m.messages.length);
+        m.messages.forEach((candidate, index) => {
+          const remoteJid = candidate?.key?.remoteJid;
+          const messageValida = Boolean(
+            candidate?.message &&
+            !candidate.key?.fromMe &&
+            remoteJid &&
+            !remoteJid.includes("@g.us") &&
+            !isJidBroadcast(remoteJid)
+          );
+          console.log(
+            `[messages.upsert] mensagem ${index}: message=${Boolean(candidate?.message)}, valida=${messageValida}, fromMe=${Boolean(candidate?.key?.fromMe)}, remoteJid=${remoteJid || "indefinido"}`
+          );
+        });
 
-        console.log("[messages.upsert] fromMe:", message.key.fromMe);
-        console.log("[messages.upsert] remoteJid:", message.key.remoteJid);
+        const message = m.messages.find((candidate) => {
+          const remoteJid = candidate?.key?.remoteJid;
+          return Boolean(
+            candidate?.message &&
+            !candidate.key?.fromMe &&
+            remoteJid &&
+            !remoteJid.includes("@g.us") &&
+            !isJidBroadcast(remoteJid)
+          );
+        });
+
+        if (!message) {
+          console.log("[messages.upsert] nenhuma mensagem válida de usuário para processar");
+          return;
+        }
+
+        console.log("[messages.upsert] processando mensagem válida de usuário:", message.key.remoteJid);
         console.log("[messages.upsert] type:", m.type);
         console.log("[messages.upsert] message:", message.message);
-
-        if (!message.message) return;
 
         // Ignorar grupos
         if (message.key.remoteJid.includes("@g.us")) return;
