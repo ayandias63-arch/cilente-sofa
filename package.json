@@ -7,7 +7,13 @@
     "start": "npx -y -p node@20 node index.js",
     "dev": "npx -y -p node@20 node index.js"
   },
-  "keywords": ["whatsapp", "baileys", "openai", "mongodb", "render"],
+  "keywords": [
+    "whatsapp",
+    "baileys",
+    "openai",
+    "mongodb",
+    "render"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -15,7 +21,7 @@
     "node": ">=20 <21"
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.24",
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

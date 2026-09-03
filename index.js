@@ -233,6 +233,7 @@ const LIMITE_INATIVIDADE_MS = 6 * 60 * 60 * 1000; // 6 horas
 const atendimentosHumanos = new Set();
 const idsMensagensDoBot = new Set();
 const mensagensDoBotPendentes = new Map();
+const tentativasPlaceholderResend = new Map();
 let authCollection = null;
 let mongoClient = null;
 const ENDERECO_YAN = "AVENIDA ADELINO FERREIRA JARDIN NUMERO 80 APARTAMENTO 304 PORO ALEGRE RIO GRANDE DO SUL";
@@ -1060,6 +1061,54 @@ async function inicializarSocket() {
 
         if (!m.messages) return;
 
+        for (const mensagem of m.messages) {
+          const parametrosStub = mensagem?.messageStubParameters || [];
+          const ehMensagemAusente = parametrosStub.includes(
+            "Message absent from node"
+          );
+          const messageId = mensagem?.key?.id;
+
+          if (!ehMensagemAusente || !messageId) continue;
+
+          const tentativas = tentativasPlaceholderResend.get(messageId) || 0;
+          if (tentativas >= 3) {
+            console.log(
+              "[messages.upsert] limite de reintentos alcanzado para mensaje ausente:",
+              messageId
+            );
+            continue;
+          }
+
+          tentativasPlaceholderResend.set(messageId, tentativas + 1);
+          console.log(
+            `[messages.upsert] solicitando recuperación de mensaje ausente (intento ${tentativas + 1}/3):`,
+            messageId
+          );
+
+          if (typeof sock.requestPlaceholderResend !== "function") {
+            console.log(
+              "[messages.upsert] requestPlaceholderResend no está disponible en este socket"
+            );
+            continue;
+          }
+
+          try {
+            const requestId = await sock.requestPlaceholderResend(
+              mensagem.key,
+              mensagem
+            );
+            console.log(
+              "[messages.upsert] solicitud de recuperación enviada:",
+              requestId || "sin requestId"
+            );
+          } catch (erroRetry) {
+            console.log(
+              "[messages.upsert] error al solicitar recuperación del mensaje:",
+              erroRetry
+            );
+          }
+        }
+
         // Um mesmo evento pode trazer mais de uma mensagem. Registrar antes
         // as manuais evita que o bot responda se elas não forem a primeira.
         for (const mensagemManual of m.messages) {
@@ -1142,6 +1191,10 @@ async function inicializarSocket() {
         if (!message) {
           console.log("[messages.upsert] nenhuma mensagem válida de usuário para processar");
           return;
+        }
+
+        if (message.key?.id) {
+          tentativasPlaceholderResend.delete(message.key.id);
         }
 
         console.log("[messages.upsert] processando mensagem válida de usuário:", message.key.remoteJid);
