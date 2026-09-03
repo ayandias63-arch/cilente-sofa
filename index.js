@@ -1054,6 +1054,10 @@ async function inicializarSocket() {
 
     sock.ev.on("messages.upsert", async (m) => {
       try {
+        console.log("===== UPSERT RAW =====");
+        console.log(JSON.stringify(m, null, 2));
+        console.log("======================");
+
         if (!m.messages) return;
 
         // Um mesmo evento pode trazer mais de uma mensagem. Registrar antes
