@@ -232,6 +232,7 @@ const ultimaInteracaoConversa = {};
 const LIMITE_INATIVIDADE_MS = 6 * 60 * 60 * 1000; // 6 horas
 const atendimentosHumanos = new Set();
 const idsMensagensDoBot = new Set();
+const mensagensDoBotPendentes = new Map();
 let authCollection = null;
 let mongoClient = null;
 const ENDERECO_YAN = "AVENIDA ADELINO FERREIRA JARDIN NUMERO 80 APARTAMENTO 304 PORO ALEGRE RIO GRANDE DO SUL";
@@ -293,6 +294,53 @@ function marcarComoEnviadoPeloBot(sentMsg) {
   if (sentMsg?.key?.id) {
     idsMensagensDoBot.add(sentMsg.key.id);
   }
+}
+
+function obterTextoDaMensagem(message) {
+  return (
+    message?.conversation ||
+    message?.extendedTextMessage?.text ||
+    ""
+  );
+}
+
+function obterChaveMensagemPendente(numero, texto) {
+  return `${numero}\u0000${texto}`;
+}
+
+function registrarMensagemDoBotPendente(numero, conteudo) {
+  const texto = obterTextoDaMensagem(conteudo);
+  if (!texto) return null;
+
+  const chave = obterChaveMensagemPendente(numero, texto);
+  mensagensDoBotPendentes.set(
+    chave,
+    (mensagensDoBotPendentes.get(chave) || 0) + 1
+  );
+  return chave;
+}
+
+function removerMensagemDoBotPendente(chave) {
+  if (!chave) return;
+
+  const quantidade = mensagensDoBotPendentes.get(chave) || 0;
+  if (quantidade <= 1) {
+    mensagensDoBotPendentes.delete(chave);
+  } else {
+    mensagensDoBotPendentes.set(chave, quantidade - 1);
+  }
+}
+
+function consumirMensagemDoBotPendente(numero, mensagem) {
+  const texto = obterTextoDaMensagem(mensagem);
+  if (!texto) return false;
+
+  const chave = obterChaveMensagemPendente(numero, texto);
+  const quantidade = mensagensDoBotPendentes.get(chave) || 0;
+  if (!quantidade) return false;
+
+  removerMensagemDoBotPendente(chave);
+  return true;
 }
 
 async function conectarMongoDB() {
@@ -898,6 +946,18 @@ async function inicializarSocket() {
       syncFullState: true,
     });
 
+    const sendMessageOriginal = sock.sendMessage.bind(sock);
+    sock.sendMessage = async (numero, conteudo, opcoes) => {
+      const chavePendente = registrarMensagemDoBotPendente(numero, conteudo);
+      try {
+        const sentMsg = await sendMessageOriginal(numero, conteudo, opcoes);
+        marcarComoEnviadoPeloBot(sentMsg);
+        return sentMsg;
+      } finally {
+        removerMensagemDoBotPendente(chavePendente);
+      }
+    };
+
     let shouldUsePairingCode = !state.creds.registered && Boolean(phoneNumber);
     pairingFlowActive = shouldUsePairingCode;
 
@@ -1004,6 +1064,15 @@ async function inicializarSocket() {
           // Ignorar o eco das próprias respostas do bot: não é intervenção humana.
           if (idsMensagensDoBot.has(mensagemManual.key.id)) {
             idsMensagensDoBot.delete(mensagemManual.key.id);
+            continue;
+          }
+
+          if (
+            consumirMensagemDoBotPendente(
+              mensagemManual.key.remoteJid,
+              mensagemManual.message
+            )
+          ) {
             continue;
           }
 
