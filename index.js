@@ -362,6 +362,18 @@ IMAGENS ENVIADAS PELO CLIENTE
 
 Se o cliente enviar uma imagem relacionada a sofá, estofado ou colchão, analise a imagem e tente entender o que ele está procurando.
 
+Identifique somente características visíveis, como modelo, tipo, cor e design,
+e relacione a análise ao texto e ao contexto da conversa.
+
+Não invente características, medidas, materiais, preços ou qualquer informação
+que não possa ser determinada visualmente ou pelo contexto disponível. Quando
+algo não puder ser identificado, diga isso de forma natural e continue ajudando
+com o que for possível saber.
+
+Não envie fotos ou catálogo automaticamente apenas porque o cliente enviou
+uma imagem. Só ofereça esses recursos quando a intenção do cliente indicar
+que são apropriados.
+
 Se estiver mostrando um modelo de referência, converse sobre o modelo antes de oferecer outras imagens.
 
 ==================================================
@@ -665,13 +677,38 @@ async function processarMensagensAgrupadas(numeroConversa, mensagens) {
   ultimaInteracaoConversa[numeroConversa] = agora;
 
   const textos = [];
+  const imagens = [];
   let recebeuAudio = false;
 
   for (const mensagem of mensagens) {
     let textoMensagem = obterTextoDaMensagem(mensagem.message);
     const mensagemNormalizada = normalizeMessageContent(mensagem.message);
     const mensagemTemAudio = Boolean(mensagemNormalizada?.audioMessage);
+    const mensagemTemImagem = Boolean(mensagemNormalizada?.imageMessage);
     recebeuAudio = recebeuAudio || mensagemTemAudio;
+
+    if (mensagemTemImagem) {
+      console.log("Imagem recebida");
+      try {
+        const imagemBuffer = await downloadMediaMessage(
+          mensagem,
+          "buffer",
+          {},
+          {
+            logger,
+            reuploadRequest: sock.updateMediaMessage,
+          }
+        );
+        const mimeType =
+          mensagemNormalizada.imageMessage.mimetype || "image/jpeg";
+        imagens.push({
+          mimeType,
+          dataUrl: `data:${mimeType};base64,${imagemBuffer.toString("base64")}`,
+        });
+      } catch (erroImagem) {
+        console.log("Erro ao processar imagem:", erroImagem);
+      }
+    }
 
     if (mensagemTemAudio) {
       console.log("Audio recebido");
@@ -693,7 +730,7 @@ async function processarMensagensAgrupadas(numeroConversa, mensagens) {
   }
 
   const textoUsuario = textos.join("\n");
-  if (!textoUsuario) return;
+  if (!textoUsuario && !imagens.length) return;
   const texto = normalizarTexto(textoUsuario);
 
   if (texto.includes("pdf") || texto.includes("documento")) {
@@ -745,17 +782,34 @@ async function processarMensagensAgrupadas(numeroConversa, mensagens) {
     console.log(erroMedida);
   }
 
+  const textoParaMemoria = textoUsuario || "O cliente enviou uma imagem.";
   console.log("\n📩 Mensagem de:", numero);
-  console.log(textoUsuario);
+  console.log(textoParaMemoria);
   if (!conversas[numeroConversa]) conversas[numeroConversa] = [];
-  conversas[numeroConversa].push({ role: "user", content: textoUsuario });
+  conversas[numeroConversa].push({ role: "user", content: textoParaMemoria });
   conversas[numeroConversa] = conversas[numeroConversa].slice(-15);
+
+  const conteudoMensagem = imagens.length
+    ? [
+        { type: "text", text: textoParaMemoria },
+        ...imagens.map((imagem) => ({
+          type: "image_url",
+          image_url: { url: imagem.dataUrl },
+        })),
+      ]
+    : textoParaMemoria;
+  const mensagensParaModelo = imagens.length
+    ? [
+        ...conversas[numeroConversa].slice(0, -1),
+        { role: "user", content: conteudoMensagem },
+      ]
+    : conversas[numeroConversa];
 
   const respostaIA = await openai.chat.completions.create({
     model: "gpt-5.6",
     messages: [
       { role: "system", content: PROMPT_SISTEMA },
-      ...conversas[numeroConversa],
+      ...mensagensParaModelo,
     ],
   });
   const resposta = respostaIA.choices[0].message.content;
