@@ -19,6 +19,7 @@ const {
   downloadMediaMessage,
   isJidBroadcast,
   Browsers,
+  normalizeMessageContent,
 } = require("@whiskeysockets/baileys");
 
 const { useMongoAuthState } = require("./mongoAuthState");
@@ -1228,7 +1229,9 @@ async function inicializarSocket() {
         if (obterIdsDaConversa(message).some((id) => atendimentosHumanos.has(id))) return;
 
         let textoUsuario = message.message.conversation || "";
-        const recebeuAudio = Boolean(message.message.audioMessage);
+        const recebeuAudio = Boolean(
+          normalizeMessageContent(message.message)?.audioMessage
+        );
 
         // Se não houver texto simples, tentar extrair de outras fontes
         if (!textoUsuario && message.message.extendedTextMessage) {
