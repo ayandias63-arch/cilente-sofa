@@ -46,7 +46,9 @@ const openai = new OpenAI({
 });
 
 /* ======================================================
-  const PROMPT_SISTEMA = `
+====================================================== */
+
+const PROMPT_SISTEMA = `
 Você é um vendedor profissional de uma loja especializada em sofás, estofados sob medida, poltronas e colchões.
 
 Seu principal objetivo é VENDER, mas de forma natural, humana e sem pressionar excessivamente o cliente.
