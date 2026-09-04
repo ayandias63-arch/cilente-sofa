@@ -1362,7 +1362,7 @@ async function inicializarSocket() {
         ====================================================== */
 
         const respostaIA = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5.6-sol",
           temperature: 0.7,
           messages: [
             {
