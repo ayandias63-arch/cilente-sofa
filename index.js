@@ -1365,7 +1365,7 @@ async function inicializarSocket() {
         ====================================================== */
 
         const respostaIA = await openai.chat.completions.create({
-          model: "gpt-5.6-sol",
+          model: "gpt-5.6",
           messages: [
             {
               role: "system",
